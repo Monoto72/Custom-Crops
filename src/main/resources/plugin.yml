@@ -1,0 +1,15 @@
+name: CustomCrops
+version: '${project.version}'
+main: me.monoto.customcrops.CustomCrops
+api-version: 1.18
+authors: [Monoto]
+description: Custom drops on breaking a crop, perfect timers, etc.
+
+commands:
+  customcrops:
+    description: Give a seed to a player
+    aliases:
+    - crop
+    - crops
+    permission: customcrops.give
+    permission-message: You do not have permission!
