@@ -1,11 +1,9 @@
 package me.monoto.customcrops.commands;
 
-import me.monoto.customcrops.ItemManager;
+import me.monoto.customcrops.CustomCrops;
+import me.monoto.customcrops.utils.ItemManager;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -18,7 +16,7 @@ public class SeedCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (sender instanceof Player) {
+        if (sender.isOp() || sender instanceof ConsoleCommandSender || (command.getPermission() != null && sender.hasPermission(command.getPermission()))) {
             if (args.length == 3) {
                 Player player = Bukkit.getPlayer(args[0]);
 
@@ -29,7 +27,7 @@ public class SeedCommand implements CommandExecutor, TabCompleter {
 
                 int amount = Integer.parseInt(args[2]);
 
-                if (!args[1].isEmpty()) {
+                if (CustomCrops.getInstance().getCropsTypes().get(args[1].toLowerCase()) != null) {
                     if (amount > 0) {
                         if (hasAvailableSlot(player)) {
                             ItemStack seed = ItemManager.getSeed(args[1], amount);
@@ -38,8 +36,8 @@ public class SeedCommand implements CommandExecutor, TabCompleter {
                         } else sender.sendMessage("Inventory is full");
                     } else sender.sendMessage("The amount must be greater than 0.");
                 } else sender.sendMessage("Invalid seed type");
-            } else sender.sendMessage("Usage: /seed <player> <seed type> <amount>");
-        }
+            } else sender.sendMessage("Usage: /" + command.getName() + " <player> <seed type> <amount>");
+        } else sender.sendMessage("You do not have permission to use this command");
         return false;
     }
 
@@ -52,16 +50,12 @@ public class SeedCommand implements CommandExecutor, TabCompleter {
                 completions.add(player.getName());
             }
         } else if (args.length == 2) {
-            completions.add("Coal");
-            completions.add("Iron");
-            completions.add("Gold");
-            completions.add("Diamond");
-            completions.add("Emerald");
-            completions.add("Redstone");
-            completions.add("Lapis");
+            completions.addAll(CustomCrops.getInstance().getCropsTypes().keySet());
         } else if (args.length == 3) {
-            completions = new ArrayList<>(Arrays.asList("1", "2", "4", "8", "16", "32", "64"));
+            completions.addAll(Arrays.asList("1", "2", "4", "8", "16", "32", "64"));
         }
+
+        Collections.sort(completions);
 
         return completions;
     }

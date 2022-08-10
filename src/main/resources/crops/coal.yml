@@ -1,0 +1,17 @@
+name: "<dark_gray>Coal <gray>seeds"
+
+item:
+  material: WHEAT_SEEDS
+  display_name: "<dark_gray>Coal <gray>seeds"
+  lore:
+    - "<gray>Place it on"
+    - "<dark_gray>farmland <gray>to plant it."
+
+time: 15 # Seconds
+
+drops:
+  item:
+    material: COAL
+    amount: 1-3
+  seed:
+    amount: 1-3

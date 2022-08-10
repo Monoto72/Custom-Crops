@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import org.apache.commons.lang.math.IntRange;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -11,18 +12,18 @@ import java.util.stream.Collectors;
 
 public class Formatters {
     public static @NotNull Component mini(String message) {
-        return MiniMessage.miniMessage().deserialize(message);
+        return MiniMessage.miniMessage().deserialize("<!italic>" + message);
     }
 
     public static Component mini(String message, String placeholder, Component replacement) {
-        return MiniMessage.miniMessage().deserialize(message, Placeholder.component(placeholder, replacement));
+        return MiniMessage.miniMessage().deserialize("<!italic>" + message, Placeholder.component(placeholder, replacement));
     }
 
     // TODO: Add support for multiple placeholders - Potentially done...
     public static Component miniMulti(String message, List<String> placeholders, List<Component> replacements) {
         Iterable<? extends TagResolver> placeholdersIterable = placeholders.stream().map(placeholder -> Placeholder.component(placeholder, replacements.get(placeholders.indexOf(placeholder)))).collect(Collectors.toList());
 
-        return MiniMessage.miniMessage().deserialize(message, TagResolver.resolver(placeholdersIterable));
+        return MiniMessage.miniMessage().deserialize("<!italic>" + message, TagResolver.resolver(placeholdersIterable));
     }
 
     public static Component time(Integer seconds) {
@@ -41,5 +42,10 @@ public class Formatters {
         } else {
             return Component.text(seconds / 29030400 + " years");
         }
+    }
+
+    public static IntRange stringToRange(String range) {
+        String[] split = range.split("-");
+        return new IntRange(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
     }
 }

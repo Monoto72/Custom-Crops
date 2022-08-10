@@ -1,0 +1,17 @@
+name: "<gray>Iron <gray>seeds"
+
+item:
+  material: WHEAT_SEEDS
+  display_name: "<gray>Iron <gray>seeds"
+  lore:
+    - "<gray>Place it on"
+    - "<dark_gray>farmland <gray>to plant it."
+
+time: 30 # Seconds
+
+drops:
+  item:
+    material: IRON_NUGGET
+    amount: 4-7
+  seed:
+    amount: 1-3

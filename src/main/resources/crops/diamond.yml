@@ -1,0 +1,17 @@
+name: "<aqua>Diamond <gray>seeds"
+
+item:
+  material: WHEAT_SEEDS
+  display_name: "<aqua>Diamond <gray>seeds"
+  lore:
+    - "<gray>Place it on"
+    - "<dark_gray>farmland <gray>to plant it."
+
+time: 60 # Seconds
+
+drops:
+  item:
+    material: DIAMOND
+    amount: 1-1
+  seed:
+    amount: 1-1

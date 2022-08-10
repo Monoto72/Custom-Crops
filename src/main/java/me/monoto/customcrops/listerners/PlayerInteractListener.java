@@ -3,7 +3,7 @@ package me.monoto.customcrops.listerners;
 import me.monoto.customcrops.CustomCrops;
 import me.monoto.customcrops.crops.Crop;
 import me.monoto.customcrops.crops.CropManager;
-import me.monoto.customcrops.panels.ViewPanel;
+import me.monoto.customcrops.utils.Formatters;
 import org.apache.commons.lang.math.IntRange;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -13,6 +13,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -20,17 +21,15 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.List;
 
 import static org.bukkit.Bukkit.getPluginManager;
 
-public class CropPlace implements Listener {
+public class PlayerInteractListener implements Listener {
 
-    public CropPlace(CustomCrops plugin){
+    public PlayerInteractListener(CustomCrops plugin){
         getPluginManager().registerEvents(this, plugin);
     }
 
@@ -38,12 +37,6 @@ public class CropPlace implements Listener {
     public void on(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         if (event.getClickedBlock() == null) return;
-
-        if (getCrop(event.getClickedBlock().getLocation()) != null) {
-            new ViewPanel().init(event.getPlayer(), Objects.requireNonNull(getCrop(event.getClickedBlock().getLocation())));
-            return;
-        }
-
         if (event.getItem() == null) return;
 
         ItemStack item = event.getItem();
@@ -52,21 +45,29 @@ public class CropPlace implements Listener {
         if (data.has(new NamespacedKey(CustomCrops.getInstance(), "CUSTOM_CROP"), PersistentDataType.STRING)) {
             Bukkit.getScheduler().runTask(CustomCrops.getInstance(), () -> {
                 String type = data.get(new NamespacedKey(CustomCrops.getInstance(), "CUSTOM_CROP"), PersistentDataType.STRING);
+                if (type == null) return;
+
                 Block block = event.getClickedBlock().getRelative(BlockFace.UP);
                 BlockData blockData = block.getBlockData();
+
                 if (blockData instanceof Ageable) {
-                    HashMap<Material, IntRange> cropDrops = new HashMap<>();
+                    if (CustomCrops.getInstance().getCropsTypes().get(type.toLowerCase()) != null) {
+                        YamlConfiguration config = CustomCrops.getInstance().getCropsTypes().get(type.toLowerCase());
 
-                    cropDrops.put(Material.COAL, new IntRange(1, 3));
+                        // todo: Add support for multiple drops
+                        HashMap<Material, IntRange> cropDrops = new HashMap<>(); // Single drop for now
+                        cropDrops.put(Material.valueOf(config.getString("drops.item.material")), Formatters.stringToRange(config.getString("drops.item.amount", "1-1")));
 
-                    Crop crop = new Crop(
-                            type,
-                            cropDrops,
-                            60,
-                            block.getLocation()
-                    );
+                        Crop crop = new Crop(
+                                type,
+                                cropDrops,
+                                Formatters.stringToRange(config.getString("drops.seed.amount", "1-1")),
+                                config.getInt("time"),
+                                block.getLocation()
+                        );
 
-                    CropManager.addCrop(crop);
+                        CropManager.addCrop(crop);
+                    }
                 }
             });
         }
